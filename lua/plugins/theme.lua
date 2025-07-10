@@ -1,0 +1,1 @@
+/home/billy/.config/omarchy/current/theme/neovim.lua
