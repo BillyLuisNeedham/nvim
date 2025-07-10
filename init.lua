@@ -1,5 +1,4 @@
 -- Enable relative line numbers
--- Enable relative line numbers
 vim.o.relativenumber = true
 vim.o.number = true
 
@@ -188,59 +187,114 @@ require("lazy").setup({
 
   -- Fuzzy finder
   {
-  "nvim-telescope/telescope.nvim",
-  dependencies = { 
-    "nvim-lua/plenary.nvim",
-    {
-      "nvim-telescope/telescope-fzf-native.nvim",
-      build = "make"
-    }
-  },
-  config = function()
-    require("telescope").setup({
-      defaults = {
-        mappings = {
-          i = {
-            ["<C-h>"] = "which_key",
-            ["<C-j>"] = "move_selection_next",
-            ["<C-k>"] = "move_selection_previous",
-            ["<C-q>"] = "send_to_qflist",
-            ["<C-u>"] = "preview_scrolling_up",
-            ["<C-d>"] = "preview_scrolling_down",
-          }
-        },
-        file_ignore_patterns = {
-          "node_modules",
-          ".git/",
-          "%.DS_Store"
-        },
-        layout_config = {
-          horizontal = {
-            preview_width = 0.6,
+    "nvim-telescope/telescope.nvim",
+    dependencies = { 
+      "nvim-lua/plenary.nvim",
+      {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        build = "make"
+      }
+    },
+    config = function()
+      require("telescope").setup({
+        defaults = {
+          mappings = {
+            i = {
+              ["<C-h>"] = "which_key",
+              ["<C-j>"] = "move_selection_next",
+              ["<C-k>"] = "move_selection_previous",
+              ["<C-q>"] = "send_to_qflist",
+              ["<C-u>"] = "preview_scrolling_up",
+              ["<C-d>"] = "preview_scrolling_down",
+            }
+          },
+          file_ignore_patterns = {
+            "node_modules",
+            ".git/",
+            "%.DS_Store"
+          },
+          layout_config = {
+            horizontal = {
+              preview_width = 0.6,
+            },
           },
         },
-      },
-      pickers = {
-        find_files = {
-          hidden = true,
-          find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
+        pickers = {
+          find_files = {
+            hidden = true,
+            find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
+          },
+          live_grep = {
+            additional_args = function(opts)
+              return {"--hidden"}
+            end
+          },
         },
-        live_grep = {
-          additional_args = function(opts)
-            return {"--hidden"}
-          end
-        },
-      },
-    })
-    
-    -- Load FZF extension for better fuzzy matching
-    require("telescope").load_extension("fzf")
-  end,
-},
+      })
+      
+      -- Load FZF extension for better fuzzy matching
+      require("telescope").load_extension("fzf")
+    end,
+  },
 
-  -- Git integration
+  -- Git signs for visual indicators
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require("gitsigns").setup({
+        signs = {
+          add = { text = "+" },
+          change = { text = "~" },
+          delete = { text = "_" },
+          topdelete = { text = "‾" },
+          changedelete = { text = "~" },
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          
+          -- Hunk navigation
+          vim.keymap.set('n', ']c', function()
+            if vim.wo.diff then return ']c' end
+            vim.schedule(function() gs.next_hunk() end)
+            return '<Ignore>'
+          end, {expr=true, buffer = bufnr, desc = 'Next hunk'})
+          
+          vim.keymap.set('n', '[c', function()
+            if vim.wo.diff then return '[c' end
+            vim.schedule(function() gs.prev_hunk() end)
+            return '<Ignore>'
+          end, {expr=true, buffer = bufnr, desc = 'Previous hunk'})
+          
+          -- Hunk actions
+          vim.keymap.set('n', '<leader>hs', gs.stage_hunk, { buffer = bufnr, desc = 'Stage hunk' })
+          vim.keymap.set('n', '<leader>hr', gs.reset_hunk, { buffer = bufnr, desc = 'Reset hunk' })
+          vim.keymap.set('n', '<leader>hu', gs.undo_stage_hunk, { buffer = bufnr, desc = 'Undo stage hunk' })
+          vim.keymap.set('n', '<leader>hp', gs.preview_hunk, { buffer = bufnr, desc = 'Preview hunk' })
+          vim.keymap.set('n', '<leader>hb', gs.blame_line, { buffer = bufnr, desc = 'Blame line' })
+          
+          -- Stage/reset visual selection
+          vim.keymap.set('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { buffer = bufnr, desc = 'Stage hunk' })
+          vim.keymap.set('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { buffer = bufnr, desc = 'Reset hunk' })
+        end
+      })
+    end,
+  },
+
+  -- Enhanced Git integration
   {
     "tpope/vim-fugitive",
+    config = function()
+      -- Git fugitive keybindings
+      vim.keymap.set('n', '<leader>gs', '<cmd>Git<cr>', { desc = 'Git status' })
+      vim.keymap.set('n', '<leader>gd', '<cmd>Git diff<cr>', { desc = 'Git diff' })
+      vim.keymap.set('n', '<leader>gl', '<cmd>Git log<cr>', { desc = 'Git log' })
+      vim.keymap.set('n', '<leader>gp', '<cmd>Git push<cr>', { desc = 'Git push' })
+      vim.keymap.set('n', '<leader>gP', '<cmd>Git pull<cr>', { desc = 'Git pull' })
+      vim.keymap.set('n', '<leader>ga', '<cmd>Git add .<cr>', { desc = 'Git add all' })
+      vim.keymap.set('n', '<leader>gA', '<cmd>Git add %<cr>', { desc = 'Git add current file' })
+      vim.keymap.set('n', '<leader>gC', '<cmd>Git commit<cr>', { desc = 'Git commit' })
+      vim.keymap.set('n', '<leader>gB', '<cmd>Git blame<cr>', { desc = 'Git blame' })
+    end,
   },
 
   -- Status line
@@ -301,6 +355,7 @@ require("lazy").setup({
 
 -- Key mappings
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle file explorer" })
 
 local builtin = require('telescope.builtin')
 
@@ -320,7 +375,22 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
 vim.keymap.set('n', '<leader>fc', builtin.commands, { desc = 'Commands' })
 vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = 'Keymaps' })
 
--- Git integration
+-- Git telescope integration
 vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = 'Git branches' })
 vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'Git commits' })
+vim.keymap.set('n', '<leader>gf', builtin.git_files, { desc = 'Git files' })
 
+-- Buffer management
+vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>', { desc = 'Delete buffer' })
+vim.keymap.set('n', '<leader>bn', '<cmd>bnext<cr>', { desc = 'Next buffer' })
+vim.keymap.set('n', '<leader>bp', '<cmd>bprevious<cr>', { desc = 'Previous buffer' })
+
+-- Window management
+vim.keymap.set('n', '<leader>wv', '<cmd>vsplit<cr>', { desc = 'Vertical split' })
+vim.keymap.set('n', '<leader>wh', '<cmd>split<cr>', { desc = 'Horizontal split' })
+vim.keymap.set('n', '<leader>wc', '<cmd>close<cr>', { desc = 'Close window' })
+
+-- Quick save
+vim.keymap.set('n', '<leader>w', '<cmd>w<cr>', { desc = 'Save file' })
+vim.keymap.set('n', '<leader>q', '<cmd>q<cr>', { desc = 'Quit' })
+vim.keymap.set('n', '<leader>x', '<cmd>x<cr>', { desc = 'Save and quit' })
