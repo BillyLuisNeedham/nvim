@@ -195,46 +195,6 @@ require("lazy").setup({
         build = "make"
       }
     },
-    config = function()
-      require("telescope").setup({
-        defaults = {
-          mappings = {
-            i = {
-              ["<C-h>"] = "which_key",
-              ["<C-j>"] = "move_selection_next",
-              ["<C-k>"] = "move_selection_previous",
-              ["<C-q>"] = "send_to_qflist",
-              ["<C-u>"] = "preview_scrolling_up",
-              ["<C-d>"] = "preview_scrolling_down",
-            }
-          },
-          file_ignore_patterns = {
-            "node_modules",
-            ".git/",
-            "%.DS_Store"
-          },
-          layout_config = {
-            horizontal = {
-              preview_width = 0.6,
-            },
-          },
-        },
-        pickers = {
-          find_files = {
-            hidden = true,
-            find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
-          },
-          live_grep = {
-            additional_args = function(opts)
-              return {"--hidden"}
-            end
-          },
-        },
-      })
-      
-      -- Load FZF extension for better fuzzy matching
-      require("telescope").load_extension("fzf")
-    end,
   },
 
   -- Git signs for visual indicators
@@ -357,28 +317,26 @@ require("lazy").setup({
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<cr>", { desc = "Toggle file explorer" })
 
-local builtin = require('telescope.builtin')
-
--- Core file operations
-vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
-vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
-vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = 'Recent files' })
+-- Core file operations (lazy-loaded telescope functions)
+vim.keymap.set('n', '<leader>ff', function() require('telescope.builtin').find_files() end, { desc = 'Find files' })
+vim.keymap.set('n', '<leader>fg', function() require('telescope.builtin').live_grep() end, { desc = 'Live grep' })
+vim.keymap.set('n', '<leader>fb', function() require('telescope.builtin').buffers() end, { desc = 'Find buffers' })
+vim.keymap.set('n', '<leader>fr', function() require('telescope.builtin').oldfiles() end, { desc = 'Recent files' })
 
 -- Code navigation (requires LSP)
-vim.keymap.set('n', 'gr', builtin.lsp_references, { desc = 'Find references' })
-vim.keymap.set('n', 'gd', builtin.lsp_definitions, { desc = 'Go to definition' })
-vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Document symbols' })
+vim.keymap.set('n', 'gr', function() require('telescope.builtin').lsp_references() end, { desc = 'Find references' })
+vim.keymap.set('n', 'gd', function() require('telescope.builtin').lsp_definitions() end, { desc = 'Go to definition' })
+vim.keymap.set('n', '<leader>fs', function() require('telescope.builtin').lsp_document_symbols() end, { desc = 'Document symbols' })
 
 -- Search utilities
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
-vim.keymap.set('n', '<leader>fc', builtin.commands, { desc = 'Commands' })
-vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = 'Keymaps' })
+vim.keymap.set('n', '<leader>fh', function() require('telescope.builtin').help_tags() end, { desc = 'Help tags' })
+vim.keymap.set('n', '<leader>fC', function() require('telescope.builtin').commands() end, { desc = 'Commands' })
+vim.keymap.set('n', '<leader>fk', function() require('telescope.builtin').keymaps() end, { desc = 'Keymaps' })
 
 -- Git telescope integration
-vim.keymap.set('n', '<leader>gb', builtin.git_branches, { desc = 'Git branches' })
-vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'Git commits' })
-vim.keymap.set('n', '<leader>gf', builtin.git_files, { desc = 'Git files' })
+vim.keymap.set('n', '<leader>gb', function() require('telescope.builtin').git_branches() end, { desc = 'Git branches' })
+vim.keymap.set('n', '<leader>gc', function() require('telescope.builtin').git_commits() end, { desc = 'Git commits' })
+vim.keymap.set('n', '<leader>gf', function() require('telescope.builtin').git_files() end, { desc = 'Git files' })
 
 -- Buffer management
 vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<cr>', { desc = 'Delete buffer' })
