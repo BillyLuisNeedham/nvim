@@ -82,54 +82,14 @@ require("lazy").setup({
     end,
   },
 
-  -- Tokyo Night Theme
-  {
-    "folke/tokyonight.nvim",
-    priority = 1000,
-    config = function()
-      require("tokyonight").setup({
-        style = "night", -- storm, moon, night, day
-        transparent = false,
-        terminal_colors = true,
-      })
-      vim.cmd.colorscheme("tokyonight-night")
-    end,
-  },
-
-  -- Alternative: Catppuccin Theme
-  {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    priority = 1000,
-    config = function()
-      require("catppuccin").setup({
-        flavour = "mocha", -- latte, frappe, macchiato, mocha
-        transparent_background = false,
-      })
-      -- vim.cmd.colorscheme("catppuccin")
-    end,
-  },
-
-  -- Alternative: Kanagawa Theme
-  {
-    "rebelot/kanagawa.nvim",
-    priority = 1000,
-    config = function()
-      require("kanagawa").setup({
-        transparent = false,
-        theme = "wave", -- wave, dragon, lotus
-      })
-      -- vim.cmd.colorscheme("kanagawa")
-    end,
-  },
-
   -- Treesitter for syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
-    run = ":TSUpdate",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "typescript", "go", "kotlin", "lua", "json", "yaml" },
+        ensure_installed = { "typescript", "go", "kotlin", "lua", "json", "yaml", "javascript", "tsx" },
         highlight = { enable = true },
         indent = { enable = true },
       })
@@ -139,6 +99,7 @@ require("lazy").setup({
   -- Autocompletion
   {
     "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
@@ -172,34 +133,31 @@ require("lazy").setup({
     end,
   },
 
-  -- File explorer
+  -- Auto pairs
   {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
     config = function()
-      require("nvim-tree").setup({
-        view = {
-          relativenumber = true,
-        },
-      })
+      require("nvim-autopairs").setup({})
     end,
   },
 
-  -- Fuzzy finder
+  -- Comments
   {
-    "nvim-telescope/telescope.nvim",
-    dependencies = { 
-      "nvim-lua/plenary.nvim",
-      {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        build = "make"
-      }
+    "numToStr/Comment.nvim",
+    keys = {
+      { "gc", mode = { "n", "v" } },
+      { "gb", mode = { "n", "v" } },
     },
+    config = function()
+      require("Comment").setup()
+    end,
   },
 
   -- Git signs for visual indicators
   {
     "lewis6991/gitsigns.nvim",
+    event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("gitsigns").setup({
         signs = {
@@ -243,6 +201,7 @@ require("lazy").setup({
   -- Enhanced Git integration
   {
     "tpope/vim-fugitive",
+    cmd = { "Git", "Gdiff", "Gread", "Gwrite", "Ggrep", "GMove", "GDelete", "GBrowse" },
     config = function()
       -- Git fugitive keybindings
       vim.keymap.set('n', '<leader>gs', '<cmd>Git<cr>', { desc = 'Git status' })
@@ -257,60 +216,8 @@ require("lazy").setup({
     end,
   },
 
-  -- Status line
-  {
-    "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("lualine").setup({
-        options = {
-          theme = "auto",
-        },
-      })
-    end,
-  },
-
-  -- Buffer line
-  {
-    "akinsho/bufferline.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("bufferline").setup({})
-    end,
-  },
-
-  -- Auto pairs
-  {
-    "windwp/nvim-autopairs",
-    config = function()
-      require("nvim-autopairs").setup({})
-    end,
-  },
-
-  -- Comments
-  {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("Comment").setup()
-    end,
-  },
-
-  -- Which-key for keybinding help
-  {
-    "folke/which-key.nvim",
-    config = function()
-      require("which-key").setup({})
-    end,
-  },
-
-  -- Indent guides
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    config = function()
-      require("ibl").setup()
-    end,
-  },
+  -- Import plugin configurations from lua/plugins/
+  { import = "plugins" },
 })
 
 -- Key mappings

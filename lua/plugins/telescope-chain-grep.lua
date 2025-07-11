@@ -1,5 +1,12 @@
 return {
   "nvim-telescope/telescope.nvim",
+  dependencies = { 
+    "nvim-lua/plenary.nvim",
+    {
+      "nvim-telescope/telescope-fzf-native.nvim",
+      build = "make"
+    }
+  },
   keys = {
     -- View quickfix in telescope
     { "<leader>fq", "<cmd>Telescope quickfix<cr>", desc = "View Quickfix List" },
@@ -73,19 +80,15 @@ return {
           ["<C-h>"] = "which_key",
           ["<C-j>"] = "move_selection_next", 
           ["<C-k>"] = "move_selection_previous",
-          ["<C-q>"] = "send_to_qflist + open_qflist",
-          ["<C-a>"] = "send_selected_to_qflist + open_qflist",
           ["<C-u>"] = "preview_scrolling_up",
           ["<C-d>"] = "preview_scrolling_down",
-          -- Add multi-select capability for chaining
-          ["<Tab>"] = "toggle_selection + move_selection_worse",
-          ["<S-Tab>"] = "toggle_selection + move_selection_better",
+          -- Multi-select capability for chaining
+          ["<Tab>"] = "toggle_selection",
+          ["<S-Tab>"] = "toggle_selection",
         },
         n = {
-          ["<Tab>"] = "toggle_selection + move_selection_worse",
-          ["<S-Tab>"] = "toggle_selection + move_selection_better",
-          ["<C-q>"] = "send_to_qflist + open_qflist",
-          ["<C-a>"] = "send_selected_to_qflist + open_qflist",
+          ["<Tab>"] = "toggle_selection",
+          ["<S-Tab>"] = "toggle_selection",
         }
       },
       file_ignore_patterns = {
